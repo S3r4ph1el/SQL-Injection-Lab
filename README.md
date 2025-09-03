@@ -48,6 +48,10 @@ Repository for a set up of a vulnerable web environment to simulate SQL Injectio
       ```bash
       psql -U postgres -d web_server_db
       ```
+> **NOTE:** Whenever you need a public or private IP, you can simply run the next command in your terminal:
+      ```
+      terraform output
+      ```
 
 7. **Troubleshooting**
     - If you see an error like:
@@ -57,13 +61,28 @@ Repository for a set up of a vulnerable web environment to simulate SQL Injectio
       This can rarely happen when running `deploy.sh`. If it does, simply run the script again.
 
 8. **Simulate and Detect SQL Injection Attacks**
-    - On the attacker VM, run:
+    - On the siem VM, run:
       ```bash
-      sqlmap -u "http://<PRIVATE_IP_WEB>/test_db_connection.php?id=1" --batch --level=2 --risk=2
+      sudo tail -f /var/ossec/logs/alerts/alerts.log
       ```
-    - On the web VM, monitor Snort alerts:
+    - On the webserver VM, run:
       ```bash
-      sudo tail -f /var/log/snort/alert
+      sudo tail -f /var/ossec/logs/active-responses.log
+      ```
+    - On the attacker VM, run (substituting the `<PRIVATE_IP_WEB>` with the actual private IP address of the vm_web_server):
+      ```bash
+      sqlmap -u "http://<PRIVATE_IP_WEB>/get_login.php?id=1" --batch --level=2 --risk=2
+      ```
+
+
+    - The attack will be mitigated by blocking the source IP after a while, adding it to the `iptables` blocked IPs. You can see this by running on the webserver VM:
+      ```bash
+      sudo iptables -L INPUT -n --line-numbers
+      ```
+
+    - You can also test attacks with logins using the webpage of the Apache server. Put this URL in your browser:
+      ```
+      http://<PUBLIC_IP_WEBSERVER_VM>/get_login.php
       ```
 
 9. **Destroy and Clean Up the Environment**
