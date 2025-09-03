@@ -15,6 +15,6 @@ CREATE TABLE users (
 
 INSERT INTO users (username, password, role) VALUES
 ('admin', 'password123', 'admin'),
-('enzo.teles', '***REMOVED***', 'user'),
+('enzo.teles', 'vish', 'user'),
 ('lorena.borges', 'awes0me_t3ach3r', 'user'),
 ('gui.fornari', 'kek123%', 'user');
